@@ -1,0 +1,80 @@
+{
+  "name": "cognichip",
+  "displayName": "cognichip",
+  "description": "A VS Code extension with a chat sidebar",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.94.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "extension.sendTextToSidebar",
+        "title": "Send Text to Sidebar"
+      },
+      {
+        "command": "extension.fetchOpenAIStream",
+        "title": "Fetch OpenAI Stream"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "extension.sendTextToSidebar",
+          "when": "editorHasSelection"
+        }
+      ]
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "cognichip-sidebar",
+          "title": "cognichip",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "cognichip-sidebar": [
+        {
+          "type": "webview",
+          "id": "cognichip-sidebar",
+          "name": "Chat Sidebar",
+          "icon": "media/icon.svg"
+        }
+      ]
+    }
+  },
+  "activationEvents": [
+    "onCommand:cognichip.start"
+  ],
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc --watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.10",
+    "@types/node": "20.x",
+    "@types/vscode": "^1.94.0",
+    "@typescript-eslint/eslint-plugin": "^8.25.0",
+    "@typescript-eslint/parser": "^8.25.0",
+    "@vscode/test-cli": "^0.0.10",
+    "@vscode/test-electron": "^2.4.1",
+    "eslint": "^9.21.0",
+    "typescript": "^5.7.3"
+  },
+  "dependencies": {
+    "axios": "^1.8.3",
+    "dotenv": "^16.4.7",
+    "node-fetch": "^3.3.2",
+    "openai": "^4.87.3"
+  }
+}
