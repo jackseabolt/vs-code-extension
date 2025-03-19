@@ -1,6 +1,6 @@
-# ChatGPT sidebar README
+# ChatGPT Sidebar
 
-This is the README for my demo extension
+This is the README for my demo VS Code extension
 
 ## Features
 
@@ -15,6 +15,7 @@ This extension features:
 
 1. populate the .env file at the top level. You will need to have a CHAT_GPT_API_KEY value
 2. `npm install`
-3. run `npm run compile`
 
-Then open the debugger - the sidebar should be open be default
+## Use the Extension
+
+Start the debugger. Click the bottom icon on the left navigation bar.
