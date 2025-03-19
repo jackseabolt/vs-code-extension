@@ -1,4 +1,4 @@
-# Cognichip sidebar README
+# ChatGPT sidebar README
 
 This is the README for my demo extension
 
