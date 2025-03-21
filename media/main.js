@@ -8,6 +8,16 @@
   const loader = document.getElementById("loader");
 
   /**
+   * Retrieve stored state if it exists
+   * and populate the UI
+   */
+  const state = vscode.getState();
+  if (state?.response) {
+    promptOutput.textContent = state.response;
+    copyButton.style.display = "block";
+  }
+
+  /**
    * Receives messages sent from other areas
    * of the extension and processes them in the UI
    */
@@ -36,6 +46,7 @@
         }
 
         if (message.text === "[DONE]") {
+          vscode.setState({ response: promptOutput.textContent });
           copyButton.style.display = "block";
           break;
         }
@@ -55,7 +66,6 @@
           copyButton.style.display = "none";
         } else {
           loader.style.display = "none";
-          copyButton.style.display = "block";
         }
         break;
 
