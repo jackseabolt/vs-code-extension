@@ -1,6 +1,6 @@
 {
-  "name": "cognichip",
-  "displayName": "cognichip",
+  "name": "vs-code-extnsion-playground",
+  "displayName": "VS Code Extension Playground",
   "description": "A VS Code extension with a chat sidebar",
   "version": "0.0.1",
   "engines": {
