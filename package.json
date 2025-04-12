@@ -17,8 +17,8 @@
         "title": "Send Text to Sidebar"
       },
       {
-        "command": "extension.fetchOpenAIStream",
-        "title": "Fetch OpenAI Stream"
+        "command": "viteReactWebview.showPanel",
+        "title": "Show Vite React Webview"
       }
     ],
     "menus": {
