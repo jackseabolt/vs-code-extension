@@ -34,6 +34,10 @@
         promptInput.value = message.text;
         break;
 
+      case "sendToSidebar":
+        promptInput.value = message.text;
+        break;
+
       /**
        * Handles the response from OpenAPI
        * queries streaming from extension.js
@@ -101,9 +105,13 @@
    * code open in the editor
    */
   copyButton.addEventListener("click", () => {
+    // vscode.postMessage({
+    //   command: "insertIntoEditor",
+    //   text: promptOutput.textContent,
+    // });
     vscode.postMessage({
-      command: "insertIntoEditor",
-      text: promptOutput.textContent,
+      command: "insertReactText",
+      text: "Hey React! Here's some text.",
     });
   });
 

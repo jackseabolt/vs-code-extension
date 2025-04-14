@@ -3,15 +3,18 @@ import { getNonce } from "../utils/nonceUtils";
 import { fetchOpenAIStream } from "../api/chatGptApi";
 
 export class SidebarWebViewProvider implements vscode.WebviewViewProvider {
+  private _view?: vscode.WebviewView;
+
+  private _onDidReceiveMessageEmitter = new vscode.EventEmitter<any>();
+  public readonly onDidReceiveMessage = this._onDidReceiveMessageEmitter.event;
+
   constructor(
     private readonly _extensionUri: vscode.Uri,
     public extensionContext: vscode.ExtensionContext
   ) {}
 
-  view?: vscode.WebviewView;
-
   resolveWebviewView(webviewView: vscode.WebviewView) {
-    this.view = webviewView;
+    this._view = webviewView;
 
     webviewView.webview.options = {
       enableScripts: true,
@@ -21,10 +24,19 @@ export class SidebarWebViewProvider implements vscode.WebviewViewProvider {
     webviewView.webview.html = this.getHtmlForWebview(webviewView.webview);
 
     /**
-     * Receives messages fired rom main.js
+     * Receives messages fired from main.js
      * and acts upon them
      */
     webviewView.webview.onDidReceiveMessage(async (message) => {
+      // ✅ Forward all messages via event emitter for external listeners
+      this._onDidReceiveMessageEmitter.fire(message);
+
+      /**
+       * Captures events triggered from within VS Code
+       * or extension.ts. NOTE: If two webviews need to
+       * communicate, the message must be passed first
+       * through extension.ts
+       */
       if (message.command === "fetchOpenAIStream") {
         await fetchOpenAIStream(message.text, this);
       } else if (message.command === "insertIntoEditor") {
@@ -57,15 +69,14 @@ export class SidebarWebViewProvider implements vscode.WebviewViewProvider {
   }
 
   /**
-   * Sends a message to activate loading display
+   * Sends a message to main.js to
+   * activate loading display
    */
   public setLoading(isActive: boolean) {
-    if (this.view) {
-      this.view.webview.postMessage({
-        command: "setLoading",
-        value: isActive,
-      });
-    }
+    this._view?.webview.postMessage({
+      command: "setLoading",
+      value: isActive,
+    });
   }
 
   /**
@@ -74,25 +85,19 @@ export class SidebarWebViewProvider implements vscode.WebviewViewProvider {
    * by main.js
    */
   public sendTextToSidebar(text: string) {
-    if (this.view) {
-      this.view.webview.postMessage({
-        command: "insertText",
-        text: text,
-      });
+    this._view?.webview.postMessage({
+      command: "insertText",
+      text,
+    });
 
-      vscode.window.showInformationMessage("Text copied to sidebar");
-    }
+    vscode.window.showInformationMessage("Text copied to sidebar");
   }
 
   /**
    * Clears the input area
    */
   public clearInput() {
-    if (this.view) {
-      this.view.webview.postMessage({
-        command: "clearInput",
-      });
-    }
+    this._view?.webview.postMessage({ command: "clearInput" });
   }
 
   /**
@@ -100,12 +105,12 @@ export class SidebarWebViewProvider implements vscode.WebviewViewProvider {
    * to main.js to be appended in the UI
    */
   public sendResponseChunkToWebview(chunk: string) {
-    if (this.view) {
+    if (this._view) {
       if (chunk === "[ERROR]") {
         vscode.window.showErrorMessage("There was a network error");
       }
 
-      this.view.webview.postMessage({
+      this._view.webview.postMessage({
         command: "streamUpdate",
         text: chunk,
       });

@@ -6,6 +6,8 @@ import { SidebarWebViewProvider } from "./views/sidebarWebViewProvider";
 export function activate(context: vscode.ExtensionContext) {
   const provider = new SidebarWebViewProvider(context.extensionUri, context);
 
+  let panel: vscode.WebviewPanel | undefined;
+
   /**
    * Registers the sidebar view
    */
@@ -13,9 +15,12 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.window.registerWebviewViewProvider("cognichip-sidebar", provider)
   );
 
+  /**
+   * Registers the main panel
+   */
   context.subscriptions.push(
     vscode.commands.registerCommand("viteReactWebview.showPanel", () => {
-      const panel = vscode.window.createWebviewPanel(
+      panel = vscode.window.createWebviewPanel(
         "viteReactWebview",
         "Vite React Webview",
         vscode.ViewColumn.One,
@@ -26,7 +31,7 @@ export function activate(context: vscode.ExtensionContext) {
 
       const htmlPath = path.join(
         context.extensionPath,
-        "react-media",
+        "reactBuild",
         "index.html"
       );
       let html = fs.readFileSync(htmlPath, "utf8");
@@ -34,13 +39,23 @@ export function activate(context: vscode.ExtensionContext) {
       // Fix the paths for JS/CSS so they load properly in the webview
       html = html.replace(/(href|src)="(.+?)"/g, (match, p1, p2) => {
         const fullPath = vscode.Uri.file(
-          path.join(context.extensionPath, "react-media", p2)
+          path.join(context.extensionPath, "reactBuild", p2)
         );
-        const webviewUri = panel.webview.asWebviewUri(fullPath);
+        const webviewUri = panel!.webview.asWebviewUri(fullPath);
         return `${p1}="${webviewUri}"`;
       });
 
       panel.webview.html = html;
+
+      /**
+       * Wires up the sidebar to recieve messages from the
+       * react view
+       */
+      panel.webview.onDidReceiveMessage((message) => {
+        if (message.command === "sendToSidebar") {
+          provider.sendTextToSidebar(message.text);
+        }
+      });
     })
   );
 
@@ -64,4 +79,16 @@ export function activate(context: vscode.ExtensionContext) {
       }
     })
   );
+
+  /**
+   * Listen for messages FROM the sidebar, and forward them TO the panel
+   */
+  provider.onDidReceiveMessage((message: any) => {
+    if (message.command === "insertReactText" && panel) {
+      panel.webview.postMessage({
+        command: "insertReactText",
+        text: message.text,
+      });
+    }
+  });
 }

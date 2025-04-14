@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react()],
   base: "", // this is important for VS Code to resolve paths correctly
   build: {
-    outDir: "../react-media", // this is where VS Code will serve files from
+    outDir: "../reactBuild", // this is where VS Code will serve files from
     emptyOutDir: true,
   },
   resolve: {
