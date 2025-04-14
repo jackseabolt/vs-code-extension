@@ -9,5 +9,5 @@
     "strict": true
   },
   "include": ["src"],
-  "exclude": ["node_modules", "webview-ui", "reactBuild"]
+  "exclude": ["node_modules", "apps", "reactBuild"]
 }
